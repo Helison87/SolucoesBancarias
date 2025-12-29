@@ -7,48 +7,42 @@ namespace SolucoesBancarias.Controllers
     [Route("api/banco")]
     public class BancoController : ControllerBase
     {
+        private readonly IServicosBancarios _servico;
 
-        private readonly ServicosBancarios _service;
-
-        public BancoController()
+        public BancoController(IServicosBancarios servico)
         {
-            // ❌ Acoplamento forte (vamos resolver depois)
-            _service = new ServicosBancarios();
+            _servico = servico;
         }
 
         [HttpPost("criar")]
-        public IActionResult Criar(string name)
+        public IActionResult Criar(string proprietario)
         {
-            var id = _service.CriarConta(name);
-            return Ok(id);
+            return Ok(_servico.CriarConta(proprietario));
         }
 
         [HttpPost("depositar")]
-        public IActionResult Deposit(Guid id, decimal value)
+        public IActionResult Depositar(Guid id, decimal valor)
         {
-            var balance = _service.Depositar(id, value);
-            return Ok(balance);
+            return Ok(_servico.Depositar(id, valor));
         }
 
         [HttpPost("sacar")]
-        public IActionResult Withdraw(Guid id, decimal value)
+        public IActionResult Sacar(Guid id, decimal valor)
         {
-            var balance = _service.Sacar(id, value);
-            return Ok(balance);
+            return Ok(_servico.Sacar(id, valor));
         }
 
         [HttpPost("transferir")]
-        public IActionResult Transfer(Guid from, Guid to, decimal value)
+        public IActionResult Transferir(Guid contaSaque, Guid contaDestino, decimal valor)
         {
-            _service.Transferir(from, to, value);
+            _servico.Transferir(contaSaque, contaDestino, valor);
             return Ok("Transferência concluída");
         }
 
         [HttpGet("saldo")]
-        public IActionResult Balance(Guid id)
+        public IActionResult ObterSaldo(Guid id)
         {
-            var balance = _service.Saldo(id);
-            return Ok(balance);
+            return Ok(_servico.Saldo(id));
         }
     }
 }

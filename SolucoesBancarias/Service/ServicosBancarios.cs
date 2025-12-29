@@ -3,13 +3,13 @@ using SolucoesBancarias.Repositories;
 
 namespace SolucoesBancarias.Service
 {
-    public class ServicosBancarios
+    public class ServicosBancarios : IServicosBancarios
     {
-        private readonly RepositorioDeContas _repositorio;
+        private readonly IRepositorioDeContas _repositorio;
 
-        public ServicosBancarios()
+        public ServicosBancarios(IRepositorioDeContas repositorio)
         {
-            _repositorio = new RepositorioDeContas();
+            _repositorio = repositorio;
         }
 
         public Guid CriarConta(string proprietario)

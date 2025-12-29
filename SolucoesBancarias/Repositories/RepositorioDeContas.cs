@@ -2,7 +2,7 @@
 
 namespace SolucoesBancarias.Repositories
 {
-    public class RepositorioDeContas
+    public class RepositorioDeContas : IRepositorioDeContas
     {
         // ❌ Ainda InMemory e acoplado
         private static readonly Dictionary<Guid, Conta> contas = new();
