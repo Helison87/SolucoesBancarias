@@ -1,72 +1,56 @@
-﻿namespace SolucoesBancarias.Service
+﻿using SolucoesBancarias.Domain;
+using SolucoesBancarias.Repositories;
+
+namespace SolucoesBancarias.Service
 {
     public class ServicosBancarios
     {
-        // ❌ Ainda ruim, mas agora isolado
-        private static Dictionary<Guid, decimal> contas = new();
+        private readonly RepositorioDeContas _repositorio;
 
-        public Guid CriarConta(string nome)
+        public ServicosBancarios()
         {
-            if (string.IsNullOrWhiteSpace(nome))
-                throw new Exception("nome invalido");
+            _repositorio = new RepositorioDeContas();
+        }
 
-            var id = Guid.NewGuid();
-            contas.Add(id, 0);
-
-            return id;
+        public Guid CriarConta(string proprietario)
+        {
+            var conta = new Conta(proprietario);
+            _repositorio.Adicionar(conta);
+            return conta.Id;
         }
 
         public decimal Saldo(Guid contaId)
         {
-            if (!contas.ContainsKey(contaId))
-                throw new Exception("Conta não existe");
-
-            return contas[contaId];
+            var conta = _repositorio.ObterPeloId(contaId);
+            return conta.Saldo;
         }
 
         public decimal Depositar(Guid contaId, decimal valor)
         {
-            if (!contas.ContainsKey(contaId))
-                throw new Exception("Conta não existe");
-
-            if (valor <= 0)
-                throw new Exception("valor invalido");
-
-            contas[contaId] += valor;
-            return contas[contaId];
+            var conta = _repositorio.ObterPeloId(contaId);
+            conta.Depositar(valor);
+            _repositorio.Atualizar(conta);
+            return conta.Saldo;
         }
 
         public decimal Sacar(Guid contaId, decimal valor)
         {
-            if (!contas.ContainsKey(contaId))
-                throw new Exception("Conta não existe");
-
-            if (valor <= 0)
-                throw new Exception("valor invalido");
-
-            if (contas[contaId] < valor)
-                throw new Exception("sem saldo");
-
-            contas[contaId] -= valor;
-            return contas[contaId];
+            var conta = _repositorio.ObterPeloId(contaId);
+            conta.Sacar(valor);
+            _repositorio.Atualizar(conta);
+            return conta.Saldo;
         }
 
         public void Transferir(Guid contaSaqueId, Guid contaDestinoId, decimal valor)
         {
-            if (!contas.ContainsKey(contaSaqueId))
-                throw new Exception("conta do saque não existe");
+            var contaSaque = _repositorio.ObterPeloId(contaSaqueId);
+            var contaDestino = _repositorio.ObterPeloId(contaDestinoId);
 
-            if (!contas.ContainsKey(contaDestinoId))
-                throw new Exception("conta de destino não existe");
+            contaSaque.Sacar(valor);
+            contaDestino.Depositar(valor);
 
-            if (valor <= 0)
-                throw new Exception("valor invalido");
-
-            if (contas[contaSaqueId] < valor)
-                throw new Exception("sem saldo");
-
-            contas[contaSaqueId] -= valor;
-            contas[contaDestinoId] += valor;
+            _repositorio.Atualizar(contaSaque);
+            _repositorio.Atualizar(contaDestino);
         }
     }
 }
