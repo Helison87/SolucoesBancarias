@@ -1,4 +1,6 @@
-﻿namespace SolucoesBancarias.Domain
+﻿using SolucoesBancarias.Domain.Exceptions;
+
+namespace SolucoesBancarias.Domain
 {
     public class Conta
     {
@@ -16,7 +18,7 @@
         public void Depositar(decimal valor)
         {
             if (valor <= 0)
-                throw new Exception("valor invalido");
+                throw new ValorInvalidoException();
 
             Saldo += valor;
         }
@@ -24,10 +26,10 @@
         public void Sacar(decimal valor)
         {
             if (valor <= 0)
-                throw new Exception("valor invalido");
+                throw new ValorInvalidoException();
 
             if (Saldo < valor)
-                throw new Exception("saldo insuficiente");
+                throw new SaldoInvalidoException();
 
             Saldo -= valor;
         }

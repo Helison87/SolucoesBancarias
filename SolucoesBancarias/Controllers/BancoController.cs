@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SolucoesBancarias.Service;
+using static SolucoesBancarias.DTOs.DTOs;
 
 namespace SolucoesBancarias.Controllers
 {
     [ApiController]
-    [Route("api/banco")]
+    [Route("api/contas")]
     public class BancoController : ControllerBase
     {
         private readonly IServicosBancarios _servico;
@@ -15,31 +16,35 @@ namespace SolucoesBancarias.Controllers
         }
 
         [HttpPost("criar")]
-        public IActionResult Criar(string proprietario)
+        [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
+        public IActionResult Criar(CriarContaDto dto)
         {
-            return Ok(_servico.CriarConta(proprietario));
+            return Ok(_servico.CriarConta(dto.Proprietario));
         }
 
-        [HttpPost("depositar")]
-        public IActionResult Depositar(Guid id, decimal valor)
+        [HttpPost("{id}/depositar")]
+        [ProducesResponseType(typeof(decimal), StatusCodes.Status200OK)]
+        public IActionResult Depositar(Guid id, ValorDto dto)
         {
-            return Ok(_servico.Depositar(id, valor));
+            return Ok(_servico.Depositar(id, dto.Valor));
         }
 
-        [HttpPost("sacar")]
-        public IActionResult Sacar(Guid id, decimal valor)
+        [HttpPost("{id}/sacar")]
+        [ProducesResponseType(typeof(decimal), StatusCodes.Status200OK)]
+        public IActionResult Sacar(Guid id, ValorDto dto)
         {
-            return Ok(_servico.Sacar(id, valor));
+            return Ok(_servico.Sacar(id, dto.Valor));
         }
 
-        [HttpPost("transferir")]
-        public IActionResult Transferir(Guid contaSaque, Guid contaDestino, decimal valor)
+        [HttpPost("{id}/transferir")]
+        public IActionResult Transferir(Guid id, TransferenciaDto dto)
         {
-            _servico.Transferir(contaSaque, contaDestino, valor);
-            return Ok("Transferência concluída");
+            _servico.Transferir(id, dto.ContaDestino, dto.Valor);
+            return NoContent();
         }
 
-        [HttpGet("saldo")]
+        [HttpGet("{id}/saldo")]
+        [ProducesResponseType(typeof(decimal), StatusCodes.Status200OK)]
         public IActionResult ObterSaldo(Guid id)
         {
             return Ok(_servico.Saldo(id));
